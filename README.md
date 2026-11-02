@@ -3,6 +3,10 @@
 Прототип мобильной 2D-игры в жанре extraction: зашёл на карту, собрал лут, выбрался живым.
 Стек: Pixi.js v8, TypeScript, Vite. Сервер не нужен, все ресурсы локальные.
 
+**Играть:** https://rudik-96.github.io/extraction-prototype/
+
+Каждый пуш в `main` собирает игру и публикует её на GitHub Pages (`.github/workflows/deploy.yml`).
+
 ## Команды
 
 Установка зависимостей:
