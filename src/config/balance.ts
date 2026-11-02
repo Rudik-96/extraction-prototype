@@ -1,8 +1,15 @@
 /** Все числа баланса. Расстояния — в единицах мира, время — в секундах. */
 export const BALANCE = {
+  run: {
+    /** Длительность забега. */
+    duration: 180,
+    exitRadius: 70,
+    /** Сколько нужно простоять в зоне выхода. */
+    exitHoldTime: 2,
+  },
   hero: {
     /** Единиц в секунду. */
-    speed: 220,
+    speed: 160,
     radius: 16,
     maxHealth: 100,
   },
@@ -18,12 +25,30 @@ export const BALANCE = {
     projectileFlightRange: 340,
   },
   enemy: {
-    speed: 110,
+    speed: 85,
     radius: 15,
     maxHealth: 30,
     contactDamage: 10,
     /** Как часто один враг может бить при касании. */
     contactInterval: 1,
+    /** На каком расстоянии спящая охрана замечает героя. */
+    guardAggroRadius: 220,
+    /** Проснувшийся охранник будит тех, кого видит в этом радиусе. */
+    guardAlertRadius: 350,
+    /** Вероятность, что убитый враг уронит лут. */
+    lootDropChance: 0.25,
+    lootDropTier: 'small',
+  },
+  loot: {
+    tiers: {
+      small: { value: 5, radius: 7 },
+      medium: { value: 15, radius: 10 },
+      large: { value: 50, radius: 14 },
+    },
+    /** Насколько раньше касания лут уже подбирается. */
+    pickupMargin: 10,
+    /** Запас пула сверх лута, разложенного на карте, для дропа с врагов. */
+    extraPoolSize: 20,
   },
   waves: {
     firstDelay: 3,

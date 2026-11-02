@@ -1,5 +1,7 @@
 import { Application, Container } from 'pixi.js';
 import { DISPLAY, LOOP } from '../config/display';
+import { LocalStorageProgressStorage } from '../save/LocalStorageProgressStorage';
+import { Progress } from '../save/Progress';
 import { createSceneFactories } from '../scenes/createSceneFactories';
 import { GameLoop } from './GameLoop';
 import { SceneManager } from './SceneManager';
@@ -11,6 +13,7 @@ export class Game {
   private readonly sceneLayer = new Container();
 
   async start(root: HTMLElement): Promise<void> {
+    const progress = await Progress.load(new LocalStorageProgressStorage());
     const initial = measureViewport(root.clientWidth, root.clientHeight);
 
     await this.app.init({
@@ -28,7 +31,11 @@ export class Game {
     this.sceneLayer.scale.set(initial.scale);
     this.app.stage.addChild(this.sceneLayer);
 
-    const scenes = new SceneManager(this.sceneLayer, createSceneFactories, initial.screen);
+    const scenes = new SceneManager(
+      this.sceneLayer,
+      (goTo) => createSceneFactories(goTo, progress),
+      initial.screen,
+    );
     scenes.goTo('menu');
 
     const loop = new GameLoop(

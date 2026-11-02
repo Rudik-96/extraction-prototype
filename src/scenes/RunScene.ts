@@ -1,17 +1,18 @@
 import { Container } from 'pixi.js';
+import { BALANCE } from '../config/balance';
 import type { Scene } from '../core/Scene';
 import type { ScreenSize } from '../core/Viewport';
 import { mainMap } from '../game/map/mainMap';
-import { World } from '../game/World';
+import { type RunOutcome, World } from '../game/World';
 import { PlayerInput } from '../input/PlayerInput';
+import type { Progress } from '../save/Progress';
 import { Button } from '../ui/Button';
-import { createLabel } from '../ui/createLabel';
 import { JoystickControl } from '../ui/JoystickControl';
+import { RunHud } from '../ui/RunHud';
 import { WorldView } from '../view/WorldView';
 import type { GoTo } from './types';
 
 const MENU_BUTTON = { width: 84, height: 40, margin: 12 };
-const WAVE_LABEL_POSITION = { x: 60, y: 32 };
 
 export class RunScene implements Scene {
   readonly view = new Container();
@@ -19,12 +20,14 @@ export class RunScene implements Scene {
   private readonly worldView = new WorldView(this.world);
   private readonly joystickControl = new JoystickControl();
   private readonly input = new PlayerInput(this.joystickControl.joystick);
+  private readonly hud = new RunHud();
   private readonly menuButton: Button;
-  private readonly waveLabel = createLabel('', 18, { bold: true });
-  private shownWave = -1;
   private finished = false;
 
-  constructor(private readonly goTo: GoTo) {
+  constructor(
+    private readonly goTo: GoTo,
+    private readonly progress: Progress,
+  ) {
     this.menuButton = new Button({
       label: 'Меню',
       width: MENU_BUTTON.width,
@@ -32,13 +35,13 @@ export class RunScene implements Scene {
       onTap: () => goTo('menu'),
     });
     // Кнопка выше зоны джойстика, иначе касание достанется джойстику.
-    this.waveLabel.position.set(WAVE_LABEL_POSITION.x, WAVE_LABEL_POSITION.y);
-    this.view.addChild(this.worldView, this.joystickControl, this.menuButton, this.waveLabel);
+    this.view.addChild(this.worldView, this.joystickControl, this.hud, this.menuButton);
   }
 
   resize(screen: ScreenSize): void {
     this.worldView.resize(screen);
     this.joystickControl.resize(screen);
+    this.hud.resize(screen);
     this.menuButton.position.set(
       screen.width - MENU_BUTTON.width / 2 - MENU_BUTTON.margin,
       MENU_BUTTON.height / 2 + MENU_BUTTON.margin,
@@ -49,24 +52,28 @@ export class RunScene implements Scene {
     if (this.finished) return;
     this.input.read();
     this.world.update(dt, this.input);
-    if (this.world.hero.isDead) {
-      this.finished = true;
-      this.goTo('result', { outcome: 'died', lootValue: 0 });
-    }
+    if (this.world.outcome) this.finish(this.world.outcome);
   }
 
   render(alpha: number): void {
     this.worldView.render(alpha);
-    // Текст обновляем только при смене волны: перерисовка Text дорогая.
-    const wave = this.world.spawner.waveNumber;
-    if (wave !== this.shownWave) {
-      this.shownWave = wave;
-      this.waveLabel.text = `Волна ${wave}`;
-    }
+    this.hud.render(this.world);
   }
 
   destroy(): void {
     this.input.dispose();
     this.view.destroy({ children: true });
+  }
+
+  private finish(outcome: RunOutcome): void {
+    this.finished = true;
+    const { world } = this;
+    if (outcome === 'extracted') this.progress.addLoot(world.lootCollected);
+    this.goTo('result', {
+      outcome,
+      lootValue: world.lootCollected,
+      kills: world.kills,
+      duration: BALANCE.run.duration - world.timeLeft,
+    });
   }
 }

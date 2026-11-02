@@ -17,6 +17,7 @@ export abstract class ScreenScene implements Scene {
   protected constructor(title: string, subtitle: string, buttons: ButtonOptions[]) {
     this.title = createLabel(title, 34, { bold: true });
     this.subtitle = createLabel(subtitle, 18, { color: COLORS.textMuted, wrapWidth: 330 });
+    this.subtitle.anchor.y = 0;
     this.buttons = buttons.map((options) => new Button(options));
     this.view.addChild(this.title, this.subtitle, ...this.buttons);
   }
@@ -24,7 +25,7 @@ export abstract class ScreenScene implements Scene {
   resize({ width, height }: ScreenSize): void {
     const centerX = width / 2;
     this.title.position.set(centerX, height * 0.2);
-    this.subtitle.position.set(centerX, height * 0.2 + 70);
+    this.subtitle.position.set(centerX, height * 0.2 + 40);
 
     const firstY = height * 0.62 - ((this.buttons.length - 1) * BUTTON_SPACING) / 2;
     this.buttons.forEach((button, index) => {

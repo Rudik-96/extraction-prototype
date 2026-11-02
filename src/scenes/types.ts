@@ -1,10 +1,12 @@
 import type { Scene } from '../core/Scene';
-
-export type RunOutcome = 'extracted' | 'died' | 'timeout';
+import type { RunOutcome } from '../game/World';
 
 export interface RunResult {
   outcome: RunOutcome;
   lootValue: number;
+  kills: number;
+  /** Сколько длился забег, секунды. */
+  duration: number;
 }
 
 /** Какие сцены есть и какие параметры нужны для перехода в каждую. */

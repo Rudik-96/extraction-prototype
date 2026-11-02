@@ -19,9 +19,12 @@ export class Enemy implements CircleBody, Poolable {
   prevX = 0;
   prevY = 0;
   health = 0;
+  /** Спящий охранник стоит на месте, пока не заметит героя или не получит стрелу. */
+  dormant = false;
   private contactCooldown = 0;
 
-  spawn(x: number, y: number): void {
+  spawn(x: number, y: number, dormant = false): void {
+    this.dormant = dormant;
     this.x = this.prevX = x;
     this.y = this.prevY = y;
     this.health = this.maxHealth;
@@ -30,6 +33,7 @@ export class Enemy implements CircleBody, Poolable {
 
   takeDamage(amount: number): void {
     this.health -= amount;
+    this.dormant = false;
   }
 
   /** Двигается к герою и бьёт при касании. Со стенами разбирается World. */
@@ -37,6 +41,11 @@ export class Enemy implements CircleBody, Poolable {
     this.prevX = this.x;
     this.prevY = this.y;
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
+
+    if (this.dormant) {
+      this.dormant = !this.noticesHero(hero, map);
+      return;
+    }
 
     this.writeMoveDirection(hero, field, map);
     this.x += direction.x * BALANCE.enemy.speed * dt;
@@ -56,6 +65,13 @@ export class Enemy implements CircleBody, Poolable {
       hero.takeDamage(BALANCE.enemy.contactDamage);
       this.contactCooldown = BALANCE.enemy.contactInterval;
     }
+  }
+
+  private noticesHero(hero: Hero, map: GameMap): boolean {
+    const dx = hero.x - this.x;
+    const dy = hero.y - this.y;
+    const aggro = BALANCE.enemy.guardAggroRadius;
+    return dx * dx + dy * dy <= aggro * aggro && hasLineOfSight(this.x, this.y, hero.x, hero.y, map);
   }
 
   /** Если герой виден вблизи — прямо к нему, иначе по полю направлений. */
