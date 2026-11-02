@@ -22,6 +22,7 @@ export class UpgradesScene implements Scene {
   private readonly balance = createLabel('', 20, { bold: true, color: COLORS.textMuted });
   private readonly rows: UpgradeRow[];
   private readonly backButton: Button;
+  private shownBalance = -1;
 
   constructor(
     goTo: GoTo,
@@ -50,7 +51,10 @@ export class UpgradesScene implements Scene {
 
   fixedUpdate(_dt: number): void {}
 
-  render(_alpha: number): void {}
+  render(_alpha: number): void {
+    // Запас мог измениться и не через покупку, например из отладочной панели.
+    if (this.progress.lootBalance !== this.shownBalance) this.refresh();
+  }
 
   destroy(): void {
     this.view.destroy({ children: true });
@@ -58,6 +62,7 @@ export class UpgradesScene implements Scene {
 
   private refresh(): void {
     const { progress } = this;
+    this.shownBalance = progress.lootBalance;
     const levels = {} as UpgradeLevels;
     for (const id of UPGRADE_IDS) levels[id] = progress.upgradeLevel(id);
 

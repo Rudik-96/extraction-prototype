@@ -8,6 +8,7 @@ export interface ButtonOptions {
   primary?: boolean;
   width?: number;
   height?: number;
+  fontSize?: number;
 }
 
 const PRESSED_ALPHA = 0.65;
@@ -17,14 +18,14 @@ const DISABLED_ALPHA = 0.4;
 export class Button extends Container {
   private readonly labelText: Text;
 
-  constructor({ label, onTap, primary = false, width = 260, height = 56 }: ButtonOptions) {
+  constructor({ label, onTap, primary = false, width = 260, height = 56, fontSize = 20 }: ButtonOptions) {
     super();
 
     const background = new Graphics()
       .roundRect(-width / 2, -height / 2, width, height, 12)
       .fill(primary ? COLORS.accent : COLORS.button)
       .stroke({ width: 2, color: primary ? COLORS.accentBorder : COLORS.buttonBorder });
-    this.labelText = createLabel(label, 20, { bold: true });
+    this.labelText = createLabel(label, fontSize, { bold: true });
     this.addChild(background, this.labelText);
 
     this.eventMode = 'static';

@@ -25,3 +25,7 @@ export const JOYSTICK = {
   /** Расстояние от низа экрана до джойстика в покое. */
   restBottomOffset: 130,
 } as const;
+
+export const DEBUG = {
+  addLootAmount: 100,
+} as const;

@@ -16,6 +16,8 @@ export class Hero implements CircleBody {
   facing = -Math.PI / 2;
   readonly maxHealth: number;
   health: number;
+  /** Отладочный режим: урон не проходит. */
+  immortal = false;
 
   constructor(
     x: number,
@@ -33,6 +35,7 @@ export class Hero implements CircleBody {
   }
 
   takeDamage(amount: number): void {
+    if (this.immortal) return;
     this.health = Math.max(0, this.health - amount);
   }
 

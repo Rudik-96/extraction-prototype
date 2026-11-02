@@ -2,6 +2,7 @@ import { Container } from 'pixi.js';
 import { BALANCE } from '../config/balance';
 import type { Scene } from '../core/Scene';
 import type { ScreenSize } from '../core/Viewport';
+import type { DebugState } from '../debug/DebugState';
 import { mainMap } from '../game/map/mainMap';
 import { type RunOutcome, World } from '../game/World';
 import { PlayerInput } from '../input/PlayerInput';
@@ -27,8 +28,10 @@ export class RunScene implements Scene {
   constructor(
     private readonly goTo: GoTo,
     private readonly progress: Progress,
+    private readonly debug: DebugState,
   ) {
     this.world = new World(mainMap, progress.heroStats);
+    debug.world = this.world;
     this.worldView = new WorldView(this.world);
     this.menuButton = new Button({
       label: 'Меню',
@@ -53,6 +56,7 @@ export class RunScene implements Scene {
   fixedUpdate(dt: number): void {
     if (this.finished) return;
     this.input.read();
+    this.world.hero.immortal = this.debug.immortal;
     this.world.update(dt, this.input);
     if (this.world.outcome) this.finish(this.world.outcome);
   }
@@ -63,6 +67,7 @@ export class RunScene implements Scene {
   }
 
   destroy(): void {
+    this.debug.world = null;
     this.input.dispose();
     this.view.destroy({ children: true });
   }
