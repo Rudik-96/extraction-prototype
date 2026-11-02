@@ -16,8 +16,8 @@ const MENU_BUTTON = { width: 84, height: 40, margin: 12 };
 
 export class RunScene implements Scene {
   readonly view = new Container();
-  private readonly world = new World(mainMap);
-  private readonly worldView = new WorldView(this.world);
+  private readonly world: World;
+  private readonly worldView: WorldView;
   private readonly joystickControl = new JoystickControl();
   private readonly input = new PlayerInput(this.joystickControl.joystick);
   private readonly hud = new RunHud();
@@ -28,6 +28,8 @@ export class RunScene implements Scene {
     private readonly goTo: GoTo,
     private readonly progress: Progress,
   ) {
+    this.world = new World(mainMap, progress.heroStats);
+    this.worldView = new WorldView(this.world);
     this.menuButton = new Button({
       label: 'Меню',
       width: MENU_BUTTON.width,

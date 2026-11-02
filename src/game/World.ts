@@ -11,6 +11,7 @@ import type { MoveInput } from './MoveInput';
 import { Pool } from './Pool';
 import { Projectile } from './Projectile';
 import { separateEnemies } from './separateEnemies';
+import type { HeroStats } from './upgrades';
 import { WaveSpawner } from './WaveSpawner';
 
 export type RunOutcome = 'extracted' | 'died' | 'timeout';
@@ -31,8 +32,11 @@ export class World {
   private readonly bow = new Bow();
   private readonly flowField: FlowField;
 
-  constructor(readonly map: GameMap) {
-    this.hero = new Hero(map.heroSpawn.x, map.heroSpawn.y);
+  constructor(
+    readonly map: GameMap,
+    heroStats: HeroStats,
+  ) {
+    this.hero = new Hero(map.heroSpawn.x, map.heroSpawn.y, heroStats);
     this.exit = new ExitZone(map.exit);
     this.flowField = new FlowField(map, BALANCE.pathfinding.cellSize, BALANCE.enemy.radius);
     this.flowField.setTarget(this.hero.x, this.hero.y);

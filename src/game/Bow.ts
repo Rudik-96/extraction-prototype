@@ -1,4 +1,3 @@
-import { BALANCE } from '../config/balance';
 import { hasLineOfSight } from './collision';
 import type { Enemy } from './Enemy';
 import type { Hero } from './Hero';
@@ -20,14 +19,14 @@ export class Bow {
     const dx = target.x - hero.x;
     const dy = target.y - hero.y;
     const distance = Math.hypot(dx, dy) || 1;
-    projectiles.acquire().launch(hero.x, hero.y, dx / distance, dy / distance);
-    this.cooldown = BALANCE.bow.fireInterval;
+    projectiles.acquire().launch(hero.x, hero.y, dx / distance, dy / distance, hero.stats);
+    this.cooldown = 1 / hero.stats.shotsPerSecond;
   }
 }
 
 function findTarget(hero: Hero, enemies: Pool<Enemy>, map: GameMap): Enemy | null {
   let nearest: Enemy | null = null;
-  let nearestSquared: number = BALANCE.bow.range * BALANCE.bow.range;
+  let nearestSquared = hero.stats.range * hero.stats.range;
   for (const enemy of enemies.items) {
     if (!enemy.active) continue;
     const dx = enemy.x - hero.x;

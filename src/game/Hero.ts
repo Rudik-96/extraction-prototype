@@ -2,6 +2,7 @@ import { BALANCE } from '../config/balance';
 import { resolveMapCollisions, type CircleBody } from './collision';
 import type { GameMap } from './map/GameMap';
 import type { MoveInput } from './MoveInput';
+import type { HeroStats } from './upgrades';
 
 /** Данные и логика героя; про отрисовку ничего не знает. */
 export class Hero implements CircleBody {
@@ -13,10 +14,16 @@ export class Hero implements CircleBody {
   prevY: number;
   /** Куда смотрит герой, радианы. */
   facing = -Math.PI / 2;
-  readonly maxHealth = BALANCE.hero.maxHealth;
-  health: number = BALANCE.hero.maxHealth;
+  readonly maxHealth: number;
+  health: number;
 
-  constructor(x: number, y: number) {
+  constructor(
+    x: number,
+    y: number,
+    readonly stats: HeroStats,
+  ) {
+    this.maxHealth = stats.maxHealth;
+    this.health = stats.maxHealth;
     this.x = this.prevX = x;
     this.y = this.prevY = y;
   }
@@ -35,8 +42,8 @@ export class Hero implements CircleBody {
     if (input.x === 0 && input.y === 0) return;
 
     this.facing = Math.atan2(input.y, input.x);
-    this.x += input.x * BALANCE.hero.speed * dt;
-    this.y += input.y * BALANCE.hero.speed * dt;
+    this.x += input.x * this.stats.speed * dt;
+    this.y += input.y * this.stats.speed * dt;
     resolveMapCollisions(this, map);
   }
 }

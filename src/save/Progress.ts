@@ -1,3 +1,4 @@
+import { computeHeroStats, getUpgradeCost, type HeroStats, type UpgradeId } from '../game/upgrades';
 import type { ProgressStorage } from './ProgressStorage';
 import { createDefaultSave, type SaveData, sanitizeSave } from './SaveData';
 
@@ -25,6 +26,30 @@ export class Progress {
   addLoot(amount: number): void {
     this.data.lootBalance += amount;
     this.persist();
+  }
+
+  get heroStats(): HeroStats {
+    return computeHeroStats(this.data.upgrades);
+  }
+
+  /** Уровень улучшения. */
+  upgradeLevel(id: UpgradeId): number {
+    return this.data.upgrades[id];
+  }
+
+  /** Цена следующего уровня; null, если уровень максимальный. */
+  upgradeCost(id: UpgradeId): number | null {
+    return getUpgradeCost(id, this.data.upgrades[id]);
+  }
+
+  /** Покупает следующий уровень; возвращает false, если нельзя. */
+  buyUpgrade(id: UpgradeId): boolean {
+    const cost = this.upgradeCost(id);
+    if (cost === null || cost > this.data.lootBalance) return false;
+    this.data.lootBalance -= cost;
+    this.data.upgrades[id] += 1;
+    this.persist();
+    return true;
   }
 
   private persist(): void {

@@ -1,5 +1,6 @@
 import { BALANCE } from '../config/balance';
 import type { Poolable } from './Pool';
+import type { HeroStats } from './upgrades';
 
 export class Projectile implements Poolable {
   active = false;
@@ -14,14 +15,14 @@ export class Projectile implements Poolable {
   private velocityY = 0;
   private remainingDistance = 0;
 
-  launch(x: number, y: number, directionX: number, directionY: number): void {
+  launch(x: number, y: number, directionX: number, directionY: number, stats: HeroStats): void {
     this.x = this.prevX = x;
     this.y = this.prevY = y;
     this.angle = Math.atan2(directionY, directionX);
     this.velocityX = directionX * BALANCE.bow.projectileSpeed;
     this.velocityY = directionY * BALANCE.bow.projectileSpeed;
-    this.damage = BALANCE.bow.damage;
-    this.remainingDistance = BALANCE.bow.projectileFlightRange;
+    this.damage = stats.damage;
+    this.remainingDistance = stats.range + BALANCE.bow.projectileExtraFlight;
   }
 
   /** Возвращает false, когда дальность полёта исчерпана. */

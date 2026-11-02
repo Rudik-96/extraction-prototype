@@ -15,14 +15,13 @@ export const BALANCE = {
   },
   bow: {
     damage: 15,
-    /** Пауза между выстрелами. */
-    fireInterval: 0.5,
+    shotsPerSecond: 2,
     /** Радиус, в котором лук видит цели. */
     range: 280,
     projectileSpeed: 520,
     projectileRadius: 4,
     /** Стрела летит чуть дальше радиуса, чтобы догонять убегающую цель. */
-    projectileFlightRange: 340,
+    projectileExtraFlight: 60,
   },
   enemy: {
     speed: 85,
@@ -69,6 +68,18 @@ export const BALANCE = {
     cellSize: 40,
     /** Дальше этого расстояния враг не проверяет, видит ли он героя напрямую. */
     directChaseDistance: 300,
+  },
+  upgrades: {
+    maxLevel: 5,
+    /** Во сколько раз дорожает каждый следующий уровень. */
+    costGrowth: 1.6,
+    items: {
+      damage: { baseCost: 40, perLevel: 5 },
+      fireRate: { baseCost: 40, perLevel: 0.4 },
+      range: { baseCost: 30, perLevel: 40 },
+      health: { baseCost: 30, perLevel: 25 },
+      moveSpeed: { baseCost: 30, perLevel: 15 },
+    },
   },
   /** Сколько снарядов создать заранее, чтобы не выделять память в бою. */
   projectilePoolSize: 32,
