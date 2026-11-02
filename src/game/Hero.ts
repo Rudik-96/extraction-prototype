@@ -13,10 +13,20 @@ export class Hero implements CircleBody {
   prevY: number;
   /** Куда смотрит герой, радианы. */
   facing = -Math.PI / 2;
+  readonly maxHealth = BALANCE.hero.maxHealth;
+  health: number = BALANCE.hero.maxHealth;
 
   constructor(x: number, y: number) {
     this.x = this.prevX = x;
     this.y = this.prevY = y;
+  }
+
+  get isDead(): boolean {
+    return this.health <= 0;
+  }
+
+  takeDamage(amount: number): void {
+    this.health = Math.max(0, this.health - amount);
   }
 
   update(dt: number, input: MoveInput, map: GameMap): void {
