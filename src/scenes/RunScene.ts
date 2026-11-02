@@ -1,29 +1,55 @@
-import { ScreenScene } from './ScreenScene';
+import { Container } from 'pixi.js';
+import type { Scene } from '../core/Scene';
+import type { ScreenSize } from '../core/Viewport';
+import { mainMap } from '../game/map/mainMap';
+import { World } from '../game/World';
+import { PlayerInput } from '../input/PlayerInput';
+import { Button } from '../ui/Button';
+import { JoystickControl } from '../ui/JoystickControl';
+import { WorldView } from '../view/WorldView';
 import type { GoTo } from './types';
 
-/** Заглушка забега: счётчик показывает, что логика идёт с постоянной скоростью. */
-export class RunScene extends ScreenScene {
-  private steps = 0;
-  private elapsed = 0;
+const MENU_BUTTON = { width: 84, height: 40, margin: 12 };
+
+export class RunScene implements Scene {
+  readonly view = new Container();
+  private readonly world = new World(mainMap);
+  private readonly worldView = new WorldView(this.world);
+  private readonly joystickControl = new JoystickControl();
+  private readonly input = new PlayerInput(this.joystickControl.joystick);
+  private readonly menuButton: Button;
 
   constructor(goTo: GoTo) {
-    super('Забег', '', [
-      { label: 'Выбрался (тест)', primary: true, onTap: () => goTo('result', { outcome: 'extracted', lootValue: 100 }) },
-      { label: 'Погиб (тест)', onTap: () => goTo('result', { outcome: 'died', lootValue: 100 }) },
-      { label: 'Время вышло (тест)', onTap: () => goTo('result', { outcome: 'timeout', lootValue: 100 }) },
-    ]);
-    this.showElapsed();
+    this.menuButton = new Button({
+      label: 'Меню',
+      width: MENU_BUTTON.width,
+      height: MENU_BUTTON.height,
+      onTap: () => goTo('menu'),
+    });
+    // Кнопка выше зоны джойстика, иначе касание достанется джойстику.
+    this.view.addChild(this.worldView, this.joystickControl, this.menuButton);
   }
 
-  override fixedUpdate(dt: number): void {
-    const previousSecond = Math.floor(this.elapsed);
-    this.steps += 1;
-    this.elapsed += dt;
-    // Обновляем текст раз в секунду: перерисовка Text дорогая.
-    if (Math.floor(this.elapsed) !== previousSecond) this.showElapsed();
+  resize(screen: ScreenSize): void {
+    this.worldView.resize(screen);
+    this.joystickControl.resize(screen);
+    this.menuButton.position.set(
+      screen.width - MENU_BUTTON.width / 2 - MENU_BUTTON.margin,
+      MENU_BUTTON.height / 2 + MENU_BUTTON.margin,
+    );
   }
 
-  private showElapsed(): void {
-    this.subtitle.text = `Время логики: ${Math.floor(this.elapsed)} с, шагов: ${this.steps}`;
+  fixedUpdate(dt: number): void {
+    this.input.read();
+    this.world.update(dt, this.input);
+  }
+
+  render(alpha: number): void {
+    this.worldView.render(alpha);
+  }
+
+  destroy(): void {
+    this.input.dispose();
+    this.view.destroy({ children: true });
   }
 }
